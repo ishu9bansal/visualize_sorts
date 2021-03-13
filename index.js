@@ -1,5 +1,5 @@
 const offset = 10;
-const order = 8;
+const order = 9;
 const nodeColor = 'black';
 const lineColor = 'pink';
 const boxFontColor = 'black';
