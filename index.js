@@ -29,6 +29,7 @@ var colorScale;
 var index;
 var nodes;
 var lines;
+var sortedFrom;
 
 function render(){
 	nodes
@@ -67,10 +68,12 @@ async function shuffle(){
 	}
 	index = -1;
 	render();
+	sortedFrom = data.length;
 }
 
 async function sort(){
-	for(var l=data.length-1; l>=0; l--){
+	while(sortedFrom){
+		var l = sortedFrom--;
 		for(var i=0; i<l; i++){
 			index = i;
 			render();
@@ -94,6 +97,7 @@ function init(){
 	for(var i=0; i<limit; i++)
 		data.push(i);
 
+	sortedFrom = 0;
 	// set height and width of the svg element
 	width = window.innerWidth - 2*offset;
 	height = window.innerHeight - 2*offset;
