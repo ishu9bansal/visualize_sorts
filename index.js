@@ -75,14 +75,17 @@ async function sort(){
 	while(sortedFrom){
 		var l = sortedFrom--;
 		for(var i=0; i<l; i++){
-			index = i;
-			render();
-			await new Promise(r => setTimeout(r, 0));
+			// index = i;
+			// render();
+			// await new Promise(r => setTimeout(r, 0));
 			if(data[i]<=data[i+1])	continue;
 			var t = data[i];
 			data[i] = data[i+1];
 			data[i+1] = t;
 		}
+		index = l;
+		render();
+		await new Promise(r => setTimeout(r, 0));
 	}
 	index = -1;
 	render();
