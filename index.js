@@ -2,11 +2,20 @@ const offset = 10;
 const order = 8;
 const nodeColor = 'black';
 const lineColor = 'pink';
+const boxFontColor = 'black';
+const boxColor = 'aqua';
+const boxOpacity = 0.5;
+const boxWidth = 100;
+const boxHeight = 63;
+const boxX = x => x - boxWidth/2;
+const boxY = y => y - boxHeight/2;
 const layers = [
 	'line',
-	'node'
+	'node',
+	'control'
 ];
 
+var controlWidth;
 var nodeRadius;
 var data;
 var limit;
@@ -104,7 +113,27 @@ function init(){
 		layer[i] = svg.append('g');
 	}
 
-	index = Math.floor(limit*Math.random());
+	layer['control'].append('text').classed('sort', true)
+	.attr('x', (boxWidth)).attr('y', (height - boxHeight))
+	.style('font-size', 20).style('fill', boxFontColor)
+	.attr("dominant-baseline", "middle").attr("text-anchor", "middle")
+	.text('sort');
+	layer['control'].append('text').classed('shuffle', true)
+	.attr('x', (width - boxWidth)).attr('y', (boxHeight))
+	.style('font-size', 20).style('fill', boxFontColor)
+	.attr("dominant-baseline", "middle").attr("text-anchor", "middle")
+	.text('shuffle');
+	layer['control'].append('rect').classed('sort', true)
+	.attr('x', boxX(boxWidth)).attr('y', boxY(height - boxHeight))
+	.attr('width', boxWidth).attr('height', boxHeight)
+	.style('opacity', boxOpacity).style('fill', boxColor)
+	.on('click', sort);
+	layer['control'].append('rect').classed('shuffle', true)
+	.attr('x', boxX(width - boxWidth)).attr('y', boxY(boxHeight))
+	.attr('width', boxWidth).attr('height', boxHeight)
+	.style('opacity', boxOpacity).style('fill', boxColor)
+	.on('click', shuffle);
+
 	index = -1;
 	layer['line'].append('line').classed('index', true)
 	.attr('x1', chartScaleX(index)).attr('x2', chartScaleX(index))
