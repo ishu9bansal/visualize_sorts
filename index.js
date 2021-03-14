@@ -1,5 +1,7 @@
 const offset = 10;
-const order = 9;
+const order = 8;
+const persistence = 50;
+const humanWaitTime = 10000;
 const shufflePeriod = 2000;
 const nodeColor = 'black';
 const lineColor = 'pink';
@@ -117,17 +119,24 @@ function refLine(i){
 }
 
 async function shuffle(){
-	var period = shufflePeriod/data.length;
+	var period = shufflePeriod/data.length/2;
+	var skipper = 1;
+	if(period<persistence){
+		skipper = Math.floor(data.length*2*persistence/shufflePeriod);
+		period = persistence;
+	}
 	for(var i=data.length-1; i>=0; i--){
 		r = Math.floor(i*Math.random());
 		indexLine(r);
 		refLine(i);
+		if(!(i%skipper))
 		await new Promise(res => render(period, res));
 		var t = data[i];
 		data[i] = data[r];
 		data[r] = t;
 		indexLine(r);
 		refLine(i);
+		if(!(i%skipper))
 		await new Promise(res => render(period, res));
 	}
 	indexLine(limit);
@@ -136,13 +145,20 @@ async function shuffle(){
 	sortedFrom = data.length;
 }
 
+
+
 async function sort(){
-	var tick = 1;
+	var tick = persistence;
+	var skipper = 1;
+	if(tick*sortedFrom*sortedFrom/2>humanWaitTime){
+		skipper = Math.floor(sortedFrom*sortedFrom*tick/humanWaitTime/2);
+	}
 	while(sortedFrom){
 		var l = --sortedFrom;
 		for(var i=0; i<l; i++){
-			// indexLine(i);
-			// await new Promise(r => render(tick, r));
+			indexLine(i);
+			if(!(i%skipper))
+			await new Promise(r => render(tick, r));
 			if(data[i]<=data[i+1])	continue;
 			var t = data[i];
 			data[i] = data[i+1];
