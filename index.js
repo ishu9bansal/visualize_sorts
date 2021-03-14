@@ -1,5 +1,6 @@
 const offset = 10;
-const order = 9;
+const order = 5;
+const tick = 5;
 const nodeColor = 'black';
 const lineColor = 'pink';
 const boxFontColor = 'black';
@@ -31,63 +32,124 @@ var nodes;
 var lines;
 var sortedFrom;
 
-function render(){
+function render(resolve){
+	setTimeout(resolve, tick);
+	// var t = svg.transition().duration(tick).on('end', resolve);
 	nodes
+	// .transition(t)
 	.attr('cx', (d,i) => chartScaleX(i))
 	.attr('cy', (d,i) => chartScaleY(data[i]));
 
-	lines
-	.attr('x2', chartScaleX(index))
-	.attr('x1', chartScaleX(index))
-	.attr('y2', chartScaleY(data[index]||0))
-	.attr('y1', 0);
+	// layer['line'].selectAll('line')
+	// .data(lines, d => d.name)
+	// .join(
+	// 	enter => enter.append('line')
+	// 	.style('stroke-width', nodeRadius)
+	// 	.style('stroke', d => d.color)
+	// 	.attr('x1', d => d.x1).attr('y1', d => d.y1)
+	// 	.attr('x2', d => d.x1).attr('y2', d => d.y1)
+	// 	.call(enter => enter.transition(t)
+	// 		.attr('x2', d => d.x1).attr('y2', d => d.y1)
+	// 	),
+	// 	update => update.call(update => update.transition(t)
+	// 		.attr('x1', d => d.x1).attr('y1', d => d.y1)
+	// 		.attr('x2', d => d.x2).attr('y2', d => d.y2)
+	// 	),
+	// 	exit => exit.call(exit => exit.transition(t)
+	// 		.attr('x1', d => d.x2).attr('y1', d => d.y2)
+	// 		.attr('x2', d => d.x2).attr('y2', d => d.y2)
+	// 		.remove()
+	// 	)
+	// );
+
+	line_update = layer['line']
+	.selectAll('line.line').data(lines, d => d.name);
+
+	line_update.exit()
+	// .transition(t)
+	.attr('x1', d => d.x2).attr('y1', d => d.y2)
+	.attr('x2', d => d.x2).attr('y2', d => d.y2)
+	.remove();
+
+	line_update.enter().append('line').classed('line', true)
+	.style('stroke-width', nodeRadius)
+	.style('stroke', d => d.color)
+	.attr('x1', d => d.x1).attr('y1', d => d.y1)
+	.attr('x2', d => d.x1).attr('y2', d => d.y1);
+
+	layer['line']
+	.selectAll('line.line')
+	// .transition(t)
+	.attr('x1', d => d.x1).attr('y1', d => d.y1)
+	.attr('x2', d => d.x2).attr('y2', d => d.y2);
+	
 }
 
-// function lineHandler(lineName, index, color){
-// 	if(color==null)	color = Math.random();
-// 	var i = lines.findIndex(d => d.name==lineName);
-// 	if(index<0||index>=limit&&i!=-1){
-// 		lines[i] = lines[lines.length-1];
-// 		lines.pop();
-// 	}
-// 	if(i==-1)	lines.push({
-// 		name: lineName,
-// 		color: color
-// 	});
-//	else	lines[i].index = index;
-// }
+function lineHandler(lineName, lineData){
+	var i = lines.findIndex(d => d.name==lineName);
+	if(i!=-1&&lineData)	lines[i] = lineData;
+	else if(lineData)	lines.push(lineData);
+	else if(i!=-1)	lines.splice(i,1);
+}
+
+function indexLine(i){
+	var lineName = 'index';
+	lineHandler(lineName, i<0||i>=limit?null:{
+		name: lineName,
+		color: 'pink',
+		x1: chartScaleX(i),
+		x2: chartScaleX(i),
+		y1: chartScaleY(0),
+		y2: chartScaleY(data[i])
+	});
+}
+
+function refLine(i){
+	var lineName = 'ref';
+	lineHandler(lineName, i<0||i>=limit?null:{
+		name: lineName,
+		color: 'aqua',
+		x1: chartScaleX(i),
+		x2: chartScaleX(i),
+		y1: chartScaleY(limit-1),
+		y2: chartScaleY(data[i])
+	});
+}
 
 async function shuffle(){
 	for(var i=data.length-1; i>=0; i--){
-		index = Math.floor(limit*Math.random());
-		render();
-		await new Promise(r => setTimeout(r, 0));
+		r = Math.floor(i*Math.random());
+		indexLine(r);
+		refLine(i);
+		await new Promise(res => render(res));
 		var t = data[i];
-		data[i] = data[index];
-		data[index] = t;
+		data[i] = data[r];
+		data[r] = t;
+		indexLine(r);
+		refLine(i);
+		await new Promise(res => render(res));
 	}
-	index = -1;
+	indexLine(limit);
+	refLine(limit);
 	render();
 	sortedFrom = data.length;
 }
 
 async function sort(){
 	while(sortedFrom){
-		var l = sortedFrom--;
+		var l = --sortedFrom;
 		for(var i=0; i<l; i++){
-			// index = i;
-			// render();
-			// await new Promise(r => setTimeout(r, 0));
+			indexLine(i);
+			await new Promise(r => render(r));
 			if(data[i]<=data[i+1])	continue;
 			var t = data[i];
 			data[i] = data[i+1];
 			data[i+1] = t;
 		}
-		index = l;
-		render();
-		await new Promise(r => setTimeout(r, 0));
+		// indexLine(l);
+		// await new Promise(r => render(r));
 	}
-	index = -1;
+	indexLine(limit);
 	render();
 }
 
@@ -96,6 +158,7 @@ function init(){
 	limit = 1<<order;
 
 	// init data
+	lines = [];
 	data = [];
 	for(var i=0; i<limit; i++)
 		data.push(i);
@@ -120,6 +183,7 @@ function init(){
 		layer[i] = svg.append('g');
 	}
 
+	// controller buttons
 	layer['control'].append('text').classed('sort', true)
 	.attr('x', (boxWidth)).attr('y', (height - boxHeight))
 	.style('font-size', 20).style('fill', boxFontColor)
@@ -141,13 +205,7 @@ function init(){
 	.style('opacity', boxOpacity).style('fill', boxColor)
 	.on('click', shuffle);
 
-	index = -1;
-	layer['line'].append('line').classed('index', true)
-	.attr('x1', chartScaleX(index)).attr('x2', chartScaleX(index))
-	.attr('y1', 0).attr('y2', chartScaleY(data[index]||0))
-	.style('stroke-width', nodeRadius)
-	.style('stroke', lineColor);
-
+	// enter nodes
 	layer['node'].selectAll('circle.node')
 	.data(data).enter().append('circle')
 	.classed('node', true).attr('r', nodeRadius)
@@ -156,7 +214,6 @@ function init(){
 	.style('fill', nodeColor);
 
 	nodes = layer['node'].selectAll('circle.node');
-	lines = layer['line'].select('line.index');
 }
 
 init();
