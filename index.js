@@ -1,6 +1,6 @@
 const offset = 10;
 const order = 8;
-const persistence = 50;
+const renderingLimit = 5;	// approx time render method can take (depends on machine and method complexity)
 const humanWaitTime = 10000;
 const shufflePeriod = 2000;
 const nodeColor = 'black';
@@ -119,11 +119,12 @@ function refLine(i){
 }
 
 async function shuffle(){
+	var tick = renderingLimit;
 	var period = shufflePeriod/data.length/2;
 	var skipper = 1;
-	if(period<persistence){
-		skipper = Math.floor(data.length*2*persistence/shufflePeriod);
-		period = persistence;
+	if(period<tick){
+		skipper = Math.ceil(data.length*2*tick/shufflePeriod);
+		period = tick;
 	}
 	for(var i=data.length-1; i>=0; i--){
 		r = Math.floor(i*Math.random());
@@ -148,13 +149,12 @@ async function shuffle(){
 
 
 async function sort(){
-	var tick = persistence;
-	var skipper = 1;
-	if(tick*sortedFrom*sortedFrom/2>humanWaitTime){
-		skipper = Math.floor(sortedFrom*sortedFrom*tick/humanWaitTime/2);
-	}
+	var tick = renderingLimit;
+	var skipper;
+	var renderPerLoop = humanWaitTime/tick/sortedFrom;
 	while(sortedFrom){
 		var l = --sortedFrom;
+		skipper = Math.ceil(l/renderPerLoop);
 		for(var i=0; i<l; i++){
 			indexLine(i);
 			if(!(i%skipper))
