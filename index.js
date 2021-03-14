@@ -233,11 +233,19 @@ function addControlButton(x, y, text, lambda){
 	.on('click', lambda);
 }
 
+function randn_bm() {
+	// https://stackoverflow.com/questions/25582882/javascript-math-random-normal-distribution-gaussian-bell-curve/36481059#36481059
+	let u = 0, v = 0;
+	while(u === 0) u = Math.random(); //Converting [0,1) to (0,1)
+	while(v === 0) v = Math.random();
+	let num = Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
+	num = num / 10.0 + 0.5; // Translate to 0 -> 1
+	if (num > 1 || num < 0) return randn_bm() // resample between 0 and 1
+	return num
+}
+
 function getRandomOrder(){
-	var r = 0;
-	while(r>11||r<2)
-		r = Math.floor(12*Math.random());
-	return r;
+	return Math.floor(d3.scaleLinear().domain([0,1]).range([3,11])(randn_bm()));
 }
 
 function init(){
