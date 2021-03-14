@@ -1,6 +1,6 @@
 const offset = 10;
-const order = 5;
-const tick = 5;
+const order = 9;
+const shufflePeriod = 2000;
 const nodeColor = 'black';
 const lineColor = 'pink';
 const boxFontColor = 'black';
@@ -32,9 +32,9 @@ var nodes;
 var lines;
 var sortedFrom;
 
-function render(resolve){
-	setTimeout(resolve, tick);
-	// var t = svg.transition().duration(tick).on('end', resolve);
+function render(period, resolve){
+	setTimeout(resolve, period);
+	// var t = svg.transition().duration(period).on('end', resolve);
 	nodes
 	// .transition(t)
 	.attr('cx', (d,i) => chartScaleX(i))
@@ -117,40 +117,42 @@ function refLine(i){
 }
 
 async function shuffle(){
+	var period = shufflePeriod/data.length;
 	for(var i=data.length-1; i>=0; i--){
 		r = Math.floor(i*Math.random());
 		indexLine(r);
 		refLine(i);
-		await new Promise(res => render(res));
+		await new Promise(res => render(period, res));
 		var t = data[i];
 		data[i] = data[r];
 		data[r] = t;
 		indexLine(r);
 		refLine(i);
-		await new Promise(res => render(res));
+		await new Promise(res => render(period, res));
 	}
 	indexLine(limit);
 	refLine(limit);
-	render();
+	render(period);
 	sortedFrom = data.length;
 }
 
 async function sort(){
+	var tick = 1;
 	while(sortedFrom){
 		var l = --sortedFrom;
 		for(var i=0; i<l; i++){
-			indexLine(i);
-			await new Promise(r => render(r));
+			// indexLine(i);
+			// await new Promise(r => render(tick, r));
 			if(data[i]<=data[i+1])	continue;
 			var t = data[i];
 			data[i] = data[i+1];
 			data[i+1] = t;
 		}
-		// indexLine(l);
-		// await new Promise(r => render(r));
+		indexLine(l);
+		await new Promise(r => render(tick, r));
 	}
 	indexLine(limit);
-	render();
+	render(tick);
 }
 
 function init(){
