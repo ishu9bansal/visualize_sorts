@@ -173,7 +173,10 @@ async function sort(){
 }
 
 function changeOrder(o){
+	// only allow a few orders
 	if(o<2||o>11)	return;
+
+	// set global vars
 	order = o;
 	limit = 1<<order;
 	data = [];
@@ -186,6 +189,7 @@ function changeOrder(o){
 	chartScaleY = d3.scaleLinear().domain([0,limit-1]).range([0,height]);
 	chartScaleX = d3.scaleLinear().domain([0,limit-1]).range([0,width]);
 
+	// animate entry and exit
 	var t = svg.transition().duration(nodeTransition);
 
 	node_update = layer['node']
@@ -207,33 +211,21 @@ function changeOrder(o){
 	.attr('cy', (d,i) => chartScaleY(data[i]))
 	.attr('r', nodeRadius);
 
+	// set global nodes
 	nodes = node_update;
+
+	// as nodes is only used in render and which is callled upon user click only
+	// hence the above assignment can be skipped and render method can directly fetch the latest nodes from d3 seledtion
 }
 
 function init(){
-	order = 6;
-	// calculate limit based on the order const
-	limit = 1<<order;
-
-	// init data
-	lines = [];
-	data = [];
-	for(var i=0; i<limit; i++)
-		data.push(i);
-
-	sortedFrom = 0;
 	// set height and width of the svg element
 	width = window.innerWidth - 2*offset;
 	height = window.innerHeight - 2*offset;
 
-	nodeRadius = Math.max(2,width/limit)/2;
-
 	svg = d3.select("svg")
 	.attr("width", width).attr("height", height)
 	.attr("x", offset).attr("y", offset);
-
-	chartScaleY = d3.scaleLinear().domain([0,limit-1]).range([0,height]);
-	chartScaleX = d3.scaleLinear().domain([0,limit-1]).range([0,width]);
 
 	// add layers to the svg
 	layer = {};
@@ -263,15 +255,9 @@ function init(){
 	.style('opacity', boxOpacity).style('fill', boxColor)
 	.on('click', shuffle);
 
-	// enter nodes
-	layer['node'].selectAll('circle.node')
-	.data(data).enter().append('circle')
-	.classed('node', true).attr('r', nodeRadius)
-	.attr('cx', (d,i) => chartScaleX(i))
-	.attr('cy', (d,i) => chartScaleY(data[i]))
-	.style('fill', nodeColor);
-
-	nodes = layer['node'].selectAll('circle.node');
+	// set initial order and lines
+	lines = [];
+	changeOrder(8);
 }
 
 init();
