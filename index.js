@@ -233,6 +233,13 @@ function addControlButton(x, y, text, lambda){
 	.on('click', lambda);
 }
 
+function getRandomOrder(){
+	var r = 0;
+	while(r>11||r<2)
+		r = Math.floor(12*Math.random());
+	return r;
+}
+
 function init(){
 	// set height and width of the svg element
 	width = window.innerWidth - 2*offset;
@@ -255,7 +262,7 @@ function init(){
 
 	// set initial order and lines
 	lines = [];
-	changeOrder(8);
+	changeOrder(getRandomOrder());
 }
 
 init();
