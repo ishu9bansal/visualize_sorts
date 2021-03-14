@@ -1,5 +1,5 @@
 const offset = 10;
-const order = 8;
+const nodeTransition = 500;
 const renderingLimit = 5;	// approx time render method can take (depends on machine and method complexity)
 const humanWaitTime = 10000;
 const shufflePeriod = 2000;
@@ -33,6 +33,7 @@ var index;
 var nodes;
 var lines;
 var sortedFrom;
+var order;
 
 function render(period, resolve){
 	setTimeout(resolve, period);
@@ -171,7 +172,46 @@ async function sort(){
 	render(tick);
 }
 
+function changeOrder(o){
+	if(o<2||o>11)	return;
+	order = o;
+	limit = 1<<order;
+	data = [];
+	for(var i=0; i<limit; i++)
+		data.push(i);
+	sortedFrom = 0;
+
+	nodeRadius = Math.max(2,width/limit)/2;
+
+	chartScaleY = d3.scaleLinear().domain([0,limit-1]).range([0,height]);
+	chartScaleX = d3.scaleLinear().domain([0,limit-1]).range([0,width]);
+
+	var t = svg.transition().duration(nodeTransition);
+
+	node_update = layer['node']
+	.selectAll('circle.node').data(data);
+
+	nodes_enter = node_update.enter().append('circle')
+	.classed('node', true).attr('r', 0)
+	.attr('cx', (d,i) => chartScaleX(i))
+	.attr('cy', (d,i) => chartScaleY(0))
+	.style('fill', nodeColor);
+
+	node_update.exit().transition(t)
+	.attr('cy', (d,i) => chartScaleY(limit))
+	.attr('r', 0).remove();
+
+	node_update = node_update.merge(nodes_enter)
+	node_update.transition(t)
+	.attr('cx', (d,i) => chartScaleX(i))
+	.attr('cy', (d,i) => chartScaleY(data[i]))
+	.attr('r', nodeRadius);
+
+	nodes = node_update;
+}
+
 function init(){
+	order = 6;
 	// calculate limit based on the order const
 	limit = 1<<order;
 
