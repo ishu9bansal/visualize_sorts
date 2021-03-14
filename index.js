@@ -218,6 +218,21 @@ function changeOrder(o){
 	// hence the above assignment can be skipped and render method can directly fetch the latest nodes from d3 seledtion
 }
 
+function addControlButton(x, y, text, lambda){
+	// add text for control button
+	layer['control'].append('text').classed(text, true)
+	.attr('x', x).attr('y', y)
+	.style('font-size', 20).style('fill', boxFontColor)
+	.attr("dominant-baseline", "middle").attr("text-anchor", "middle")
+	.text(text);
+	// add button
+	layer['control'].append('rect').classed(text, true)
+	.attr('x', boxX(x)).attr('y', boxY(y))
+	.attr('width', boxWidth).attr('height', boxHeight)
+	.style('opacity', boxOpacity).style('fill', boxColor)
+	.on('click', lambda);
+}
+
 function init(){
 	// set height and width of the svg element
 	width = window.innerWidth - 2*offset;
@@ -234,26 +249,9 @@ function init(){
 	}
 
 	// controller buttons
-	layer['control'].append('text').classed('sort', true)
-	.attr('x', (boxWidth)).attr('y', (height - boxHeight))
-	.style('font-size', 20).style('fill', boxFontColor)
-	.attr("dominant-baseline", "middle").attr("text-anchor", "middle")
-	.text('sort');
-	layer['control'].append('text').classed('shuffle', true)
-	.attr('x', (width - boxWidth)).attr('y', (boxHeight))
-	.style('font-size', 20).style('fill', boxFontColor)
-	.attr("dominant-baseline", "middle").attr("text-anchor", "middle")
-	.text('shuffle');
-	layer['control'].append('rect').classed('sort', true)
-	.attr('x', boxX(boxWidth)).attr('y', boxY(height - boxHeight))
-	.attr('width', boxWidth).attr('height', boxHeight)
-	.style('opacity', boxOpacity).style('fill', boxColor)
-	.on('click', sort);
-	layer['control'].append('rect').classed('shuffle', true)
-	.attr('x', boxX(width - boxWidth)).attr('y', boxY(boxHeight))
-	.attr('width', boxWidth).attr('height', boxHeight)
-	.style('opacity', boxOpacity).style('fill', boxColor)
-	.on('click', shuffle);
+	addControlButton(boxWidth, height - boxHeight, 'sort', sort);
+	addControlButton(width - boxWidth, boxHeight, 'shuffle', shuffle);
+	// addControlButton(width/2, height/2, 'order', () => changeOrder(Math.floor(10*Math.random())));
 
 	// set initial order and lines
 	lines = [];
