@@ -201,10 +201,10 @@ async function sort(){
 			// drawPoint(i);
 			// drawPoint(i+1);
 			// await new Promise(r => setTimeout(r, tick));
-			await new Promise(res => render(tick, res));
+			// await new Promise(res => render(tick, res));
 		}
 		// indexLine(l);
-		// await new Promise(r => render(tick, r));
+		await new Promise(r => render(tick, r));
 	}
 	// indexLine(limit);
 	// render(tick);
@@ -213,7 +213,7 @@ async function sort(){
 function changeOrder(o){
 	// only allow a few orders
 	if(o<2||o>11)	return;
-	o = 10;
+	o = 12;
 	// set global vars
 	order = o;
 	limit = 1<<order;
