@@ -127,6 +127,23 @@ function refLine(i){
 	});
 }
 
+function swap(a,b){
+	canvas.fillStyle = 'white';
+	canvas.fillRect(-2*nodeRadius+chartScaleX(a), -2*nodeRadius+chartScaleY(data[a]), 4*nodeRadius, 4*nodeRadius);
+	canvas.fillRect(-2*nodeRadius+chartScaleX(b), -2*nodeRadius+chartScaleY(data[b]), 4*nodeRadius, 4*nodeRadius);
+	var temp = data[a];
+	data[a] = data[b];
+	data[b] = temp;
+	drawNeigbours(a,2);
+	drawNeigbours(b,2);
+}
+
+function drawNeigbours(i, n){
+	for(var r=Math.max(0,i-n); r<=i+n; r++){
+		drawPoint(r);
+	}
+}
+
 function drawPoint(i){
 	canvas.fillStyle = 'black';
 	canvas.beginPath();
@@ -162,16 +179,17 @@ async function shuffle(){
 		// refLine(i);
 		// if(!(i%skipper))
 		// await new Promise(res => render(period, res));
-		var t = data[i];
-		data[i] = data[r];
-		data[r] = t;
+		// var t = data[i];
+		// data[i] = data[r];
+		// data[r] = t;
 		// drawPoint(i);
 		// drawPoint(r);
 		// indexLine(r);
 		// refLine(i);
 		// if(!(i%skipper))
-		await new Promise(res => render(tick, res));
-		// await new Promise(r => setTimeout(r, 1));
+		swap(i,r);
+		// await new Promise(res => render(tick, res));
+		await new Promise(r => setTimeout(r, tick));
 	}
 	// indexLine(limit);
 	// refLine(limit);
@@ -202,7 +220,9 @@ async function sort(){
 			// drawPoint(i+1);
 			// await new Promise(r => setTimeout(r, tick));
 			// await new Promise(res => render(tick, res));
+			// swap(i,i+1);
 		}
+		// await new Promise(r => setTimeout(r, tick));
 		// indexLine(l);
 		await new Promise(r => render(tick, r));
 	}
