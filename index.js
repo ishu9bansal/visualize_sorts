@@ -120,6 +120,24 @@ function refLine(i){
 	});
 }
 
+function drawPoint(i){
+	canvas.fillStyle = 'black';
+	// canvas.beginPath();
+	// canvas.arc(chartScaleX(i), chartScaleY(data[i]), nodeRadius, 0, 2*Math.PI);
+	canvas.fillRect(-nodeRadius+chartScaleX(i), -nodeRadius+chartScaleY(data[i]), 2*nodeRadius, 2*nodeRadius);
+}
+
+function erasePoint(i){
+	// canvas.strokeStyle = 'white';
+	// canvas.lineWidth = 2.1*nodeRadius;
+	// canvas.beginPath();
+	// canvas.moveTo(chartScaleX(i), 0);
+	// canvas.lineTo(chartScaleX(i), height);
+	// canvas.stroke();
+	canvas.fillStyle = 'white';
+	canvas.fillRect(-1.2*nodeRadius+chartScaleX(i), -1.2*nodeRadius+chartScaleY(data[i]), 2.4*nodeRadius, 2.4*nodeRadius);
+}
+
 async function shuffle(){
 	var tick = renderingLimit;
 	var period = shufflePeriod/data.length/2;
@@ -130,21 +148,26 @@ async function shuffle(){
 	}
 	for(var i=data.length-1; i>=0; i--){
 		r = Math.floor(i*Math.random());
-		indexLine(r);
-		refLine(i);
-		if(!(i%skipper))
-		await new Promise(res => render(period, res));
+		erasePoint(i);
+		erasePoint(r);
+		// indexLine(r);
+		// refLine(i);
+		// if(!(i%skipper))
+		// await new Promise(res => render(period, res));
 		var t = data[i];
 		data[i] = data[r];
 		data[r] = t;
-		indexLine(r);
-		refLine(i);
-		if(!(i%skipper))
-		await new Promise(res => render(period, res));
+		drawPoint(i);
+		drawPoint(r);
+		// indexLine(r);
+		// refLine(i);
+		// if(!(i%skipper))
+		// await new Promise(res => render(period, res));
+		await new Promise(r => setTimeout(r, 1));
 	}
-	indexLine(limit);
-	refLine(limit);
-	render(period);
+	// indexLine(limit);
+	// refLine(limit);
+	// render(period);
 	sortedFrom = data.length;
 }
 
@@ -158,25 +181,30 @@ async function sort(){
 		var l = --sortedFrom;
 		skipper = Math.ceil(l/renderPerLoop);
 		for(var i=0; i<l; i++){
-			indexLine(i);
-			if(!(i%skipper))
-			await new Promise(r => render(tick, r));
+			// indexLine(i);
+			// if(!(i%skipper))
+			// await new Promise(r => render(tick, r));
 			if(data[i]<=data[i+1])	continue;
+			erasePoint(i);
+			erasePoint(i+1);
 			var t = data[i];
 			data[i] = data[i+1];
 			data[i+1] = t;
+			drawPoint(i);
+			drawPoint(i+1);
+			await new Promise(r => setTimeout(r, tick));
 		}
-		indexLine(l);
-		await new Promise(r => render(tick, r));
+		// indexLine(l);
+		// await new Promise(r => render(tick, r));
 	}
-	indexLine(limit);
-	render(tick);
+	// indexLine(limit);
+	// render(tick);
 }
 
 function changeOrder(o){
 	// only allow a few orders
 	if(o<2||o>11)	return;
-
+	o = 8;
 	// set global vars
 	order = o;
 	limit = 1<<order;
@@ -185,7 +213,7 @@ function changeOrder(o){
 		data.push(i);
 	sortedFrom = 0;
 
-	nodeRadius = Math.max(2,width/limit)/2;
+	nodeRadius = Math.floor(Math.max(2,width/limit)/2);
 
 	chartScaleY = d3.scaleLinear().domain([0,limit-1]).range([0,height]);
 	chartScaleX = d3.scaleLinear().domain([0,limit-1]).range([0,width]);
@@ -193,12 +221,11 @@ function changeOrder(o){
 	canvas.fillStyle = 'white';
 	canvas.fillRect(0,0,width,height);
 
-	canvas.fillStyle = 'black';
 	for(var i=0; i<limit; i++){
-		canvas.beginPath();
-		canvas.arc(chartScaleX(i), chartScaleY(data[i]), nodeRadius, 0, 2*Math.PI);
-		canvas.fill();
+		drawPoint(i);
 	}
+
+	canvas.lineWidth = nodeRadius;
 
 	// // animate entry and exit
 	// var t = svg.transition().duration(nodeTransition);
@@ -285,7 +312,6 @@ function init(){
 	// addControlButton(width/2, height/2, 'order', () => changeOrder(Math.floor(10*Math.random())));
 
 	// set initial order and lines
-	lines = [];
 	changeOrder(getRandomOrder());
 }
 
