@@ -34,6 +34,7 @@ var nodes;
 var lines;
 var sortedFrom;
 var order;
+var canvas;
 
 function render(period, resolve){
 	setTimeout(resolve, period);
@@ -189,33 +190,43 @@ function changeOrder(o){
 	chartScaleY = d3.scaleLinear().domain([0,limit-1]).range([0,height]);
 	chartScaleX = d3.scaleLinear().domain([0,limit-1]).range([0,width]);
 
-	// animate entry and exit
-	var t = svg.transition().duration(nodeTransition);
+	canvas.fillStyle = 'white';
+	canvas.fillRect(0,0,width,height);
 
-	node_update = layer['node']
-	.selectAll('circle.node').data(data);
+	canvas.fillStyle = 'black';
+	for(var i=0; i<limit; i++){
+		canvas.beginPath();
+		canvas.arc(chartScaleX(i), chartScaleY(data[i]), nodeRadius, 0, 2*Math.PI);
+		canvas.fill();
+	}
 
-	nodes_enter = node_update.enter().append('circle')
-	.classed('node', true).attr('r', 0)
-	.attr('cx', (d,i) => chartScaleX(i))
-	.attr('cy', (d,i) => chartScaleY(0))
-	.style('fill', nodeColor);
+	// // animate entry and exit
+	// var t = svg.transition().duration(nodeTransition);
 
-	node_update.exit().transition(t)
-	.attr('cy', (d,i) => chartScaleY(limit))
-	.attr('r', 0).remove();
+	// node_update = layer['node']
+	// .selectAll('circle.node').data(data);
 
-	node_update = node_update.merge(nodes_enter)
-	node_update.transition(t)
-	.attr('cx', (d,i) => chartScaleX(i))
-	.attr('cy', (d,i) => chartScaleY(data[i]))
-	.attr('r', nodeRadius);
+	// nodes_enter = node_update.enter().append('circle')
+	// .classed('node', true).attr('r', 0)
+	// .attr('cx', (d,i) => chartScaleX(i))
+	// .attr('cy', (d,i) => chartScaleY(0))
+	// .style('fill', nodeColor);
 
-	// set global nodes
-	nodes = node_update;
+	// node_update.exit().transition(t)
+	// .attr('cy', (d,i) => chartScaleY(limit))
+	// .attr('r', 0).remove();
 
-	// as nodes is only used in render and which is callled upon user click only
-	// hence the above assignment can be skipped and render method can directly fetch the latest nodes from d3 seledtion
+	// node_update = node_update.merge(nodes_enter)
+	// node_update.transition(t)
+	// .attr('cx', (d,i) => chartScaleX(i))
+	// .attr('cy', (d,i) => chartScaleY(data[i]))
+	// .attr('r', nodeRadius);
+
+	// // set global nodes
+	// nodes = node_update;
+
+	// // as nodes is only used in render and which is callled upon user click only
+	// // hence the above assignment can be skipped and render method can directly fetch the latest nodes from d3 seledtion
 }
 
 function addControlButton(x, y, text, lambda){
@@ -253,9 +264,14 @@ function init(){
 	width = window.innerWidth - 2*offset;
 	height = window.innerHeight - 2*offset;
 
+	canvas = d3.select("canvas")
+	.attr("width", width).attr("height", height)
+	.style("top", offset).style("left", offset);
+	canvas = canvas.node().getContext('2d');
+
 	svg = d3.select("svg")
 	.attr("width", width).attr("height", height)
-	.attr("x", offset).attr("y", offset);
+	.style("top", offset).style("left", offset);
 
 	// add layers to the svg
 	layer = {};
