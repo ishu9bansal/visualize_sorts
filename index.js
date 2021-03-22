@@ -38,54 +38,61 @@ var canvas;
 
 function render(period, resolve){
 	setTimeout(resolve, period);
-	// var t = svg.transition().duration(period).on('end', resolve);
-	nodes
-	// .transition(t)
-	.attr('cx', (d,i) => chartScaleX(i))
-	.attr('cy', (d,i) => chartScaleY(data[i]));
+	canvas.fillStyle = 'white';
+	canvas.fillRect(0,0,width,height);
 
-	// layer['line'].selectAll('line')
-	// .data(lines, d => d.name)
-	// .join(
-	// 	enter => enter.append('line')
-	// 	.style('stroke-width', nodeRadius)
-	// 	.style('stroke', d => d.color)
-	// 	.attr('x1', d => d.x1).attr('y1', d => d.y1)
-	// 	.attr('x2', d => d.x1).attr('y2', d => d.y1)
-	// 	.call(enter => enter.transition(t)
-	// 		.attr('x2', d => d.x1).attr('y2', d => d.y1)
-	// 	),
-	// 	update => update.call(update => update.transition(t)
-	// 		.attr('x1', d => d.x1).attr('y1', d => d.y1)
-	// 		.attr('x2', d => d.x2).attr('y2', d => d.y2)
-	// 	),
-	// 	exit => exit.call(exit => exit.transition(t)
-	// 		.attr('x1', d => d.x2).attr('y1', d => d.y2)
-	// 		.attr('x2', d => d.x2).attr('y2', d => d.y2)
-	// 		.remove()
-	// 	)
-	// );
+	for(var i=0; i<limit; i++){
+		drawPoint(i);
+	}
 
-	line_update = layer['line']
-	.selectAll('line.line').data(lines, d => d.name);
+	// // var t = svg.transition().duration(period).on('end', resolve);
+	// nodes
+	// // .transition(t)
+	// .attr('cx', (d,i) => chartScaleX(i))
+	// .attr('cy', (d,i) => chartScaleY(data[i]));
 
-	line_update.exit()
-	// .transition(t)
-	.attr('x1', d => d.x2).attr('y1', d => d.y2)
-	.attr('x2', d => d.x2).attr('y2', d => d.y2)
-	.remove();
+	// // layer['line'].selectAll('line')
+	// // .data(lines, d => d.name)
+	// // .join(
+	// // 	enter => enter.append('line')
+	// // 	.style('stroke-width', nodeRadius)
+	// // 	.style('stroke', d => d.color)
+	// // 	.attr('x1', d => d.x1).attr('y1', d => d.y1)
+	// // 	.attr('x2', d => d.x1).attr('y2', d => d.y1)
+	// // 	.call(enter => enter.transition(t)
+	// // 		.attr('x2', d => d.x1).attr('y2', d => d.y1)
+	// // 	),
+	// // 	update => update.call(update => update.transition(t)
+	// // 		.attr('x1', d => d.x1).attr('y1', d => d.y1)
+	// // 		.attr('x2', d => d.x2).attr('y2', d => d.y2)
+	// // 	),
+	// // 	exit => exit.call(exit => exit.transition(t)
+	// // 		.attr('x1', d => d.x2).attr('y1', d => d.y2)
+	// // 		.attr('x2', d => d.x2).attr('y2', d => d.y2)
+	// // 		.remove()
+	// // 	)
+	// // );
 
-	line_update.enter().append('line').classed('line', true)
-	.style('stroke-width', nodeRadius)
-	.style('stroke', d => d.color)
-	.attr('x1', d => d.x1).attr('y1', d => d.y1)
-	.attr('x2', d => d.x1).attr('y2', d => d.y1);
+	// line_update = layer['line']
+	// .selectAll('line.line').data(lines, d => d.name);
 
-	layer['line']
-	.selectAll('line.line')
-	// .transition(t)
-	.attr('x1', d => d.x1).attr('y1', d => d.y1)
-	.attr('x2', d => d.x2).attr('y2', d => d.y2);
+	// line_update.exit()
+	// // .transition(t)
+	// .attr('x1', d => d.x2).attr('y1', d => d.y2)
+	// .attr('x2', d => d.x2).attr('y2', d => d.y2)
+	// .remove();
+
+	// line_update.enter().append('line').classed('line', true)
+	// .style('stroke-width', nodeRadius)
+	// .style('stroke', d => d.color)
+	// .attr('x1', d => d.x1).attr('y1', d => d.y1)
+	// .attr('x2', d => d.x1).attr('y2', d => d.y1);
+
+	// layer['line']
+	// .selectAll('line.line')
+	// // .transition(t)
+	// .attr('x1', d => d.x1).attr('y1', d => d.y1)
+	// .attr('x2', d => d.x2).attr('y2', d => d.y2);
 	
 }
 
@@ -122,9 +129,10 @@ function refLine(i){
 
 function drawPoint(i){
 	canvas.fillStyle = 'black';
-	// canvas.beginPath();
-	// canvas.arc(chartScaleX(i), chartScaleY(data[i]), nodeRadius, 0, 2*Math.PI);
-	canvas.fillRect(-nodeRadius+chartScaleX(i), -nodeRadius+chartScaleY(data[i]), 2*nodeRadius, 2*nodeRadius);
+	canvas.beginPath();
+	canvas.arc(chartScaleX(i), chartScaleY(data[i]), nodeRadius, 0, 2*Math.PI);
+	canvas.fill();
+	// canvas.fillRect(-nodeRadius+chartScaleX(i), -nodeRadius+chartScaleY(data[i]), 2*nodeRadius, 2*nodeRadius);
 }
 
 function erasePoint(i){
@@ -148,8 +156,8 @@ async function shuffle(){
 	}
 	for(var i=data.length-1; i>=0; i--){
 		r = Math.floor(i*Math.random());
-		erasePoint(i);
-		erasePoint(r);
+		// erasePoint(i);
+		// erasePoint(r);
 		// indexLine(r);
 		// refLine(i);
 		// if(!(i%skipper))
@@ -157,13 +165,13 @@ async function shuffle(){
 		var t = data[i];
 		data[i] = data[r];
 		data[r] = t;
-		drawPoint(i);
-		drawPoint(r);
+		// drawPoint(i);
+		// drawPoint(r);
 		// indexLine(r);
 		// refLine(i);
 		// if(!(i%skipper))
-		// await new Promise(res => render(period, res));
-		await new Promise(r => setTimeout(r, 1));
+		await new Promise(res => render(tick, res));
+		// await new Promise(r => setTimeout(r, 1));
 	}
 	// indexLine(limit);
 	// refLine(limit);
@@ -185,14 +193,15 @@ async function sort(){
 			// if(!(i%skipper))
 			// await new Promise(r => render(tick, r));
 			if(data[i]<=data[i+1])	continue;
-			erasePoint(i);
-			erasePoint(i+1);
+			// erasePoint(i);
+			// erasePoint(i+1);
 			var t = data[i];
 			data[i] = data[i+1];
 			data[i+1] = t;
-			drawPoint(i);
-			drawPoint(i+1);
-			await new Promise(r => setTimeout(r, tick));
+			// drawPoint(i);
+			// drawPoint(i+1);
+			// await new Promise(r => setTimeout(r, tick));
+			await new Promise(res => render(tick, res));
 		}
 		// indexLine(l);
 		// await new Promise(r => render(tick, r));
@@ -204,7 +213,7 @@ async function sort(){
 function changeOrder(o){
 	// only allow a few orders
 	if(o<2||o>11)	return;
-	o = 8;
+	o = 10;
 	// set global vars
 	order = o;
 	limit = 1<<order;
@@ -218,14 +227,15 @@ function changeOrder(o){
 	chartScaleY = d3.scaleLinear().domain([0,limit-1]).range([0,height]);
 	chartScaleX = d3.scaleLinear().domain([0,limit-1]).range([0,width]);
 
-	canvas.fillStyle = 'white';
-	canvas.fillRect(0,0,width,height);
+	render(renderingLimit);
+	// canvas.fillStyle = 'white';
+	// canvas.fillRect(0,0,width,height);
 
-	for(var i=0; i<limit; i++){
-		drawPoint(i);
-	}
+	// for(var i=0; i<limit; i++){
+	// 	drawPoint(i);
+	// }
 
-	canvas.lineWidth = nodeRadius;
+	// canvas.lineWidth = nodeRadius;
 
 	// // animate entry and exit
 	// var t = svg.transition().duration(nodeTransition);
